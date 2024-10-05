@@ -14,86 +14,92 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-private final UserServices userServices;
+    private final UserServices userServices;
 
-@Autowired
-public UserController(UserServices userServices){
-    this.userServices=userServices;
-}
-
-@GetMapping("/getAllUser")
-public ResponseEntity<List<User>> getAllUser(){
-    List<User> user=userServices.getAllUser();
-    if(user.isEmpty()){
-        return ResponseEntity.noContent().build();
-    }else{
-        return ResponseEntity.ok(user);
+    @Autowired
+    public UserController(UserServices userServices) {
+        this.userServices = userServices;
     }
-}
 
-@PostMapping("/addNewUser")
-public ResponseEntity<User> addNewUser(@RequestBody User user){
-    try {
-        User saveUser=userServices.addNewUsers(user);
-        return ResponseEntity.ok(saveUser);
-    }catch (UserAlreadyExitsException ex){
-        throw ex;
-    }catch (Exception ex){
-        return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-}
-
-@PutMapping("/updateById/{id}")
-public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User user){
-    try {
-        User user1=userServices.updateUser(id,user);
-        return ResponseEntity.ok(user1);
-    }catch (RuntimeException ex){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }catch (Exception ex){
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-}
-
-@DeleteMapping("/deleteByid/{id}")
-public ResponseEntity<String> deleteById(@PathVariable String id){
-    try {
-        userServices.deleteUser(id);
-        return ResponseEntity.noContent().build();
-    }catch (RuntimeException ex){
-        return  ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }catch (Exception ex){
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-}
-
-@GetMapping("/getUserByIds/{id}")
-public ResponseEntity<User> getUserById(@PathVariable String id){
-    try {
-        Optional<User>user =userServices.getUserById(id);
-        if (user.isPresent()){
-            return ResponseEntity.ok(user.get());
-        }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUser() {
+        List<User> user = userServices.getAllUser();
+        if (user.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(user);
         }
-    }catch (Exception ex){
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
-}
 
-@GetMapping("/getUserByUserName/{userName}")
-public ResponseEntity<User> getUserByUserName(@PathVariable String userName){
+    @PostMapping
+    public ResponseEntity<User> addNewUser(@RequestBody User user) {
         try {
-            Optional<User>user =userServices.getByUserName(userName);
-            System.out.println(user);
-            if (user.isPresent()){
-                return ResponseEntity.ok(user.get());
-            }else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-        }catch (Exception ex){
+            User saveUser = userServices.addNewUsers(user);
+            return ResponseEntity.ok(saveUser);
+        } catch (UserAlreadyExitsException ex) {
+            throw ex;
+        } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @PutMapping("/id")
+    public ResponseEntity<User> updateUser(@RequestHeader String id, @RequestBody User user) {
+        try {
+            User user1 = userServices.updateUser(id, user);
+            return ResponseEntity.ok(user1);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DeleteMapping("/id")
+    public ResponseEntity<String> deleteById(@RequestHeader String id) {
+        try {
+            userServices.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/id")
+    public ResponseEntity<User> getUserById(@RequestHeader String id) {
+        try {
+            Optional<User> user = userServices.getUserById(id);
+            if (user.isPresent()) {
+                return ResponseEntity.ok(user.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/getUserByUserName")
+    public ResponseEntity<User> getUserByUserName(@RequestHeader String userName) {
+        try {
+            Optional<User> user = userServices.getByUserName(userName);
+            System.out.println(user);
+            if (user.isPresent()) {
+                return ResponseEntity.ok(user.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/login")
+    public ResponseEntity<?> login(@RequestBody User user) {
+        String res = userServices.verify(user);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
 }

@@ -3,8 +3,12 @@ package com.todo.todo.Services;
 import com.todo.todo.Entity.User;
 import com.todo.todo.ErrorHandler.UserAlreadyExitsException;
 import com.todo.todo.Reposeteries.UserReposeteries;
-import org.hibernate.service.NullServiceException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,12 +16,16 @@ import java.util.Optional;
 @Service
 public class UserServices {
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
     private UserReposeteries userReposeteries;
 
     @Autowired
-    public UserServices(UserReposeteries userReposeteries){
-        this.userReposeteries=userReposeteries;
-    }
+    private JwtServices jwtServices;
+
+    private BCryptPasswordEncoder encoder=new BCryptPasswordEncoder(12);
+
 
     public List<User> getAllUser(){
         return userReposeteries.findAll();
@@ -26,6 +34,7 @@ public class UserServices {
         if (userReposeteries.findById(user.getId()).isPresent()) {
             throw new UserAlreadyExitsException("User already exists with username: " + user.getUserName());
         }
+        user.setPassword(encoder.encode(user.getPassword()));
         return userReposeteries.save(user);
     }
 
@@ -69,5 +78,15 @@ public class UserServices {
             throw new RuntimeException("user not found");
         }
         return reposeteriesByUserName;
+    }
+
+    public String verify(User user) {
+        System.out.println(user.getUserName()+"  "+ user.getPassword());
+        Authentication authentication=
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword()));
+        if (authentication.isAuthenticated()){
+            return jwtServices.getJsonToken(user.getUserName());
+        }
+        return "fail";
     }
 }

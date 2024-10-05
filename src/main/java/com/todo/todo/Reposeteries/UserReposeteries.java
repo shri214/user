@@ -12,4 +12,7 @@ import java.util.Optional;
 public interface UserReposeteries extends JpaRepository<User, String> {
     @Query(value = "SELECT * FROM todo_app WHERE user_name= :userName", nativeQuery = true)
    Optional<User> findByUserName(@Param("userName") String userName);
+
+//    User findByUserName(String userName);
+
 }
