@@ -1,5 +1,6 @@
 package com.todo.todo.SpringSecurities;
 
+import com.todo.todo.Filter.JwtFilter;
 import com.todo.todo.Services.MyUserDetailServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -22,12 +24,16 @@ public class Config {
     @Autowired
     private MyUserDetailServices myUserDetailServices;
 
+    @Autowired
+    private JwtFilter jwtFilter;
+
     @Bean
     public SecurityFilterChain filterChain (HttpSecurity http) throws Exception {
         return http.csrf(Customizer->Customizer.disable())
                 .authorizeHttpRequests(request->request.requestMatchers("api/user/login").permitAll().anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

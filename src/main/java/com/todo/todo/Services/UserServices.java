@@ -1,5 +1,6 @@
 package com.todo.todo.Services;
 
+import com.todo.todo.Entity.Credential;
 import com.todo.todo.Entity.User;
 import com.todo.todo.ErrorHandler.UserAlreadyExitsException;
 import com.todo.todo.Reposeteries.UserReposeteries;
@@ -80,7 +81,7 @@ public class UserServices {
         return reposeteriesByUserName;
     }
 
-    public String verify(User user) {
+    public String verify(Credential user) {
         System.out.println(user.getUserName()+"  "+ user.getPassword());
         Authentication authentication=
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword()));

@@ -1,5 +1,6 @@
 package com.todo.todo.Controller;
 
+import com.todo.todo.Entity.Credential;
 import com.todo.todo.Entity.User;
 import com.todo.todo.ErrorHandler.UserAlreadyExitsException;
 import com.todo.todo.Services.UserServices;
@@ -97,7 +98,7 @@ public class UserController {
     }
 
     @GetMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) {
+    public ResponseEntity<?> login(@RequestBody Credential user) {
         String res = userServices.verify(user);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
